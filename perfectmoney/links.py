@@ -5,8 +5,9 @@ class LinksBase:
         self._password= password
         self._base_url= 'https://perfectmoney.is/acct/'
 
-    def _add_parameter(self,link, parameter_dic, xml_type= True):
-        link= self._get_auth_link(link)
+    def _add_parameter(self,link, parameter_dic, xml_type= True, auth=True):
+        if auth:
+            link= self._get_auth_link(link)
         for parameter, value in parameter_dic.items():
             if not value:
                 continue
@@ -136,7 +137,7 @@ class Links(LinksBase):
         }
 
         rates_base= self._base_url+'rates.asp?'        
-        return self._add_parameter(rates_base, parameters)
+        return self._add_parameter(rates_base, parameters, auth=False)
 
     def get_voucher_list_links(self, 
         startmonth, startday, startyear,
