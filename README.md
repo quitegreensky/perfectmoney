@@ -27,22 +27,48 @@ if not balance:
     print(p.error)
 else:
     print(balance)
-#============
-# e-voucher activation
-#============
-activation= p.voucher_activation(ev_number='123456', ev_code='123456', payee_account='U123456')
-if not activation:
-    print(p.error)
-else:
-    print(activation)
+#returns a dictionary of addresses
+#{
+#    'USD': [{'U12345': '100.00'}], 
+#    'EUR': [{'E12345': '50.00'}], 
+#    'GOLD': [{'G12345': '35.00'}, {'G123456785': '0.00'}], 
+#    'BTC': [{'B123456785': '0.00'}]
+#}
+
 #============
 # send money
 #============
-send= p.spend(payer_account='U123456', Payee_Account='U123456', payee_account='U123456', amount=100)
+send= p.spend(payer_account='U123456', Payee_Account='U654321', amount=100)
 if not send:
     print(p.error)
 else:
     print(send)
+# returns 
+#{
+#    'Payee_Account_Name': 'someaccount', 
+#    'Payee_Account': 'U654321', 
+#    'Payer_Account': 'U123456', 
+#    'PAYMENT_AMOUNT': '1.4', 
+#    'PAYMENT_BATCH_NUM': '1234567', 
+#    'PAYMENT_ID': ''
+#}
+
+#============
+# rates
+#============
+rate = p.rates(currency='EUR')
+if not rate :
+    print(p.error)
+else :
+    print(rate)
+# returns
+#{
+#    'time': '8/12/20 4:23:34 AM', 
+#    'USD': ' 1.17 ', 
+#    'GOLD': ' 0.0006227 ', 
+#    'BTC': ' 0.0001045 '
+#}
+   
 ```
  
 ## Contributing
