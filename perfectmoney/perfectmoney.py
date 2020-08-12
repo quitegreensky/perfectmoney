@@ -148,7 +148,7 @@ class PerfectMoney(Links):
             content= csv_to_list(content)
             return content        
 
-    def rates(self, currency):
+    def rates(self, currency='USD'):
         link= self.get_rates_link(currency)
         content= self.req.fetch(link, type='plain')
         if not content:
