@@ -235,18 +235,18 @@ class PerfectMoney(Links):
             content= csv_to_list(content)
             return content        
 
-    def rates(self, currency='USD'):
+    def rates(self, cur='USD'):
         '''
         CUR	Optional input field indicating display of exchange rates in this currency. Default is US Dollars. Choices are: USD = US Dollars EUR = Euro GOLD = Gold ounces (toy) BTC = Bitcoin
 
         '''        
-        link= self.get_rates_link(currency)
+        link= self.get_rates_link(cur)
         content= self.req.fetch(link, type='plain')
         if not content:
             self._error= self.req.error
             return False
         else:
-            content= rates_to_dic(currency, content)
+            content= rates_to_dic(cur, content)
             return content
 
     def voucher_list(self, 
@@ -362,8 +362,6 @@ class PerfectMoney(Links):
 
     def voucher_activation(self, payee_account, ev_number, ev_code):
         '''
-        AccountID	Perfect Money® account login  (payer)	10000
-        PassPhrase	Perfect Money® account password	This1isnotReal
         Payee_Account	Perfect Money® account to activate e-Voucher to.
         e-Voucher nominal amount was credited to this account.	U1234567
         ev_number	Your Perfect Money® e-Voucher unique number you want to activate.	01234567891
