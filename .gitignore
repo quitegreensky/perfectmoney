@@ -29,6 +29,7 @@ build
 dist
 bin
 .buildozer
+test.py 
 
 # Logs
 *.log
