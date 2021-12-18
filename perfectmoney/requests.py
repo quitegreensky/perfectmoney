@@ -5,6 +5,7 @@ class Requests:
 
     def __init__(self):
         self._error= None 
+        self.proxy= None
 
     def _xml_parser(self, xml):
         dict= xmltodict.parse(xml)['html']['body']['input']
@@ -25,7 +26,10 @@ class Requests:
         return error
 
     def fetch(self, link, type):
-        res= requests.get(link, verify=True)
+        if self.proxy is not None:
+            res= requests.get(link, verify=True, proxy=self.proxy)
+        else:
+            res= requests.get(link, verify=True)
         if not res.ok:
             self._error= res.text
             return False
