@@ -1,10 +1,11 @@
-import requests 
+import requests
 import xmltodict
 
 class Requests:
 
-    def __init__(self):
-        self._error= None 
+    def __init__(self, proxies = None):
+        self._error= None
+        self._proxies = proxies
 
     def _xml_parser(self, xml):
         dict= xmltodict.parse(xml)['html']['body']['input']
@@ -16,20 +17,20 @@ class Requests:
 
     def _check_for_error(self, content):
         error= None
-        try: 
+        try:
             if content['@name']=='ERROR':
                 error= content['@value']
         except:
-            pass 
-        
+            pass
+
         return error
 
     def fetch(self, link, type):
-        res= requests.get(link, verify=True)
+        res= requests.get(link, verify=True, proxies=self._proxies)
         if not res.ok:
             self._error= res.text
             return False
-        else: 
+        else:
             content= res.text
             if type=='xml':
                 content= self._xml_parser(content)

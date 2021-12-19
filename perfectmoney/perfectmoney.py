@@ -3,11 +3,11 @@ from .requests import Requests
 from .utils import csv_to_list, rates_to_dic
 
 class PerfectMoney(Links):
-    
-    def __init__(self, account_id, password):
+
+    def __init__(self, account_id, password, proxies=None):
         super().__init__(account_id, password)
-        self.req= Requests()
-        self._error= None 
+        self.req= Requests(proxies=proxies)
+        self._error= None
         self._address_prefix= {
             'U': 'USD',
             'E': 'EUR',
@@ -16,12 +16,12 @@ class PerfectMoney(Links):
         }
 
     def __call__(self):
-        self._error= None 
+        self._error= None
 
     @property
     def error(self):
         return self._error
-        
+
     def balance(self):
         balance_dic= {
             'USD': [],
@@ -56,7 +56,7 @@ class PerfectMoney(Links):
         Period: (Optional) You need to pass this value if only you want to use transfer protection code.
                 Number of days you want your transfer with protection code to be valid. If payee does not enter protection code during this period, money will be transferred back to your account.
                 Must be integer value from 1 to 365 days. ->	3
-        
+
         #==========
         # Output
         #==========
@@ -71,9 +71,9 @@ class PerfectMoney(Links):
         Can  be alpha-numerical string of length from 1 to 20 chars.	mycode123
         Period	(Optional) This value is present only for transfers with protection code. Number of days you want your transfer with protection code to be valid. If payee does not enter protection code during this period, money will be transferred back to your account.
         Must be integer value from 1 to 365 days.	3
-        '''        
-        
-        link= self.get_confirm_link(payer_account, payee_account, amount, memo, payment_id, code, period) 
+        '''
+
+        link= self.get_confirm_link(payer_account, payee_account, amount, memo, payment_id, code, period)
         content= self.req.fetch(link, type='xml')
         if not content:
             self._error= self.req.error
@@ -82,7 +82,7 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic 
+            return dic
 
     def verification(self, payer_account, payee_account, amount, memo= '', payment_id= '', code= '', period= None):
         '''
@@ -120,9 +120,9 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic 
+            return dic
 
-        return dic 
+        return dic
 
     def protection_code_confirmation(self, batch, code):
         '''
@@ -138,7 +138,7 @@ class PerfectMoney(Links):
         Numerical value.	758094
         code 	Perfect Money® protection code entered by payer of this transaction.
             Can  be alpha-numerical string of length from 1 to 20 chars.	somecode321
-        '''        
+        '''
         link= self.get_protection_link(batch, code)
         content= self.req.fetch(link, type='xml')
         if not content:
@@ -148,7 +148,7 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic 
+            return dic
 
     def account_name_fetch(self, account):
         '''
@@ -158,7 +158,7 @@ class PerfectMoney(Links):
         #==========
         Account name fetching cannot be completed if ERROR prefix present followed by text description of error.	ERROR: Invalid PassPhrase.
         Account name field of Account owner.	John’s shop
-        '''        
+        '''
         link= self.get_account_name_link(account)
         content= self.req.fetch(link, type='plain')
         if not content:
@@ -167,21 +167,21 @@ class PerfectMoney(Links):
 
         if 'ERROR:' in content:
             self._error= content
-            return False 
+            return False
         else:
             return content
 
     def history(self,
         startmonth='', startday='', startyear='',
         endmonth='', endday='', endyear='',
-        paymentsmade='', 
+        paymentsmade='',
         paymentsreceived='',
         batchfilter='',
         counterfilter='',
         metalfilter='',
         desc='',
         oldsort='',
-        payment_id=''    
+        payment_id=''
         ):
         '''
         startmonth,startday,startyear   These three fields define the starting day to gather account history from. Month should be a number from 1 to 12, day should be a number from 1 to 31 and year should be a 4 digit number from 2007 onward.
@@ -208,20 +208,20 @@ class PerfectMoney(Links):
         Payer Account	PerfectMoney payer account ID.	U1234567
         Payee Account	PerfectMoney payee account ID.	U7654321
         Payment ID	The value optionally provided by merchant through PerfectMoney SCI or API interface.	ID-123
-        Memo	Memo corresponding to this transaction.	Income 19.95 USD from account U1234567.  
+        Memo	Memo corresponding to this transaction.	Income 19.95 USD from account U1234567.
         '''
 
         link= self.get_history_link(
         startmonth, startday, startyear,
         endmonth, endday, endyear,
-        paymentsmade, 
+        paymentsmade,
         paymentsreceived,
         batchfilter,
         counterfilter,
         metalfilter,
         desc,
         oldsort,
-        payment_id            
+        payment_id
         )
         content= self.req.fetch(link, type='plain')
         if not content:
@@ -230,16 +230,16 @@ class PerfectMoney(Links):
 
         if 'Error:' in content:
             self._error= content
-            return False 
+            return False
         else:
             content= csv_to_list(content)
-            return content        
+            return content
 
     def rates(self, cur='USD'):
         '''
         CUR	Optional input field indicating display of exchange rates in this currency. Default is US Dollars. Choices are: USD = US Dollars EUR = Euro GOLD = Gold ounces (toy) BTC = Bitcoin
 
-        '''        
+        '''
         link= self.get_rates_link(cur)
         content= self.req.fetch(link, type='plain')
         if not content:
@@ -249,15 +249,15 @@ class PerfectMoney(Links):
             content= rates_to_dic(cur, content)
             return content
 
-    def voucher_list(self, 
+    def voucher_list(self,
         startmonth='', startday='', startyear='',
-        endmonth='', endday='', endyear='',    
+        endmonth='', endday='', endyear='',
         ev_number='',
         batchfilter='',
         counterfilter='',
         currency='',
         desc='',
-        oldsort=''    
+        oldsort=''
         ):
         '''
         startmonth, startday, startyear	These three fields define the starting day to gather e-voucher listing from. Month should be a number from 1 to 12, day should be a number from 1 to 31 and year should be a 4 digit number from 2007 onward.
@@ -277,7 +277,7 @@ class PerfectMoney(Links):
         Created	Time of e-Voucher creation in GMT.	09/08/2000 00:03
         e-Voucher number	The number of the e-Voucher (contains 10 digits)	0123456789
         Activation code	The activation code of the e-Voucher (contains 16 digits)	0123456789012345
-        Currency	Name of Perfect Money®  e-Voucher c occurred in. Possible values are: USD EUR Troy oz. (GOLD) BTC (Bitcoin)	
+        Currency	Name of Perfect Money®  e-Voucher c occurred in. Possible values are: USD EUR Troy oz. (GOLD) BTC (Bitcoin)
         Batch	The batch number of the e-Voucher creation transaction	1289
         Payer Account	PerfectMoney payer account ID (e-Voucher creator).	U1234567
         Payee Account	PerfectMoney payee account ID (e-Voucher activator).  If e-Voucher is not activated – empty value.	U7654321
@@ -288,7 +288,7 @@ class PerfectMoney(Links):
 
         link= self.get_voucher_list_links(
             startmonth, startday, startyear,
-            endmonth, endday, endyear,    
+            endmonth, endday, endyear,
             ev_number,
             batchfilter,
             counterfilter,
@@ -303,7 +303,7 @@ class PerfectMoney(Links):
             return False
         else:
             content= csv_to_list(content)
-            return content        
+            return content
 
     def voucher_create(self, payer_account, amount):
         '''
@@ -331,7 +331,7 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic         
+            return dic
 
     def voucher_return(self, ev_number):
         '''
@@ -343,7 +343,7 @@ class PerfectMoney(Links):
         #==========
         ERROR	e-Voucher was not returned if this field present. Text description of error.	Invalid PassPhrase.
         VOUCHER_NUM	Unique number of returned e-Voucher contaning 10 digits.	01234567891
-        VOUCHER_AMOUNT	Nominal amount of e-Voucher. 
+        VOUCHER_AMOUNT	Nominal amount of e-Voucher.
             Also amount that was credited back to your account.	19.95
         Payer_Account	Perfect Money® account of e-Voucher buyer.	U1234567
         PAYMENT_BATCH_NUM	PerfectMoney batch number generated for this transaction. You may query/search account history by this number.	758094
@@ -358,7 +358,7 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic                     
+            return dic
 
     def voucher_activation(self, payee_account, ev_number, ev_code):
         '''
@@ -372,10 +372,10 @@ class PerfectMoney(Links):
         #==========
         ERROR	e-Voucher was not activated if this field present. Text description of error.	Invalid PassPhrase.
         VOUCHER_NUM	Unique number of activated e-Voucher contaning 10 digits.	01234567891
-        VOUCHER_AMOUNT	Nominal amount of e-Voucher. 
+        VOUCHER_AMOUNT	Nominal amount of e-Voucher.
             This amount was credited to Payee_Account.	19.95
         Payee_Account	Perfect Money® account of e-Voucher payee.	U1234567
-        PAYMENT_BATCH_NUM	PerfectMoney batch number generated for this transaction. You may query/search account history by this number.	758094        
+        PAYMENT_BATCH_NUM	PerfectMoney batch number generated for this transaction. You may query/search account history by this number.	758094
         '''
         link= self.get_voucher_activation_links( payee_account, ev_number, ev_code)
         content= self.req.fetch(link, type='xml')
@@ -386,4 +386,4 @@ class PerfectMoney(Links):
             dic= {}
             for items in content:
                 dic[items['@name']]= items['@value']
-            return dic                
+            return dic
