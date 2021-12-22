@@ -388,18 +388,18 @@ class PerfectMoney(Links):
             for items in content:
                 dic[items['@name']]= items['@value']
             return dic
-        
+
+    @staticmethod
     def checks(payee, payer, amount, units, batch_number, secret, timestamp, payment_id, v2_hash):
         '''
-            in paymentform you set STATUS_URL for notification payment status and you need verify payment
+            In order to get and verify the payment's status, STATUS_URL can be set.
             Validates SCI payment confirmation data from Perfectmoney server
-            return: True/False
-            
-            Example :
-            you set STATUS_URL = https://example.com/api/callback
-            after payment, perfectmoney call this url to notify your payment status with post method
-            fields are : PAYEE_ACCOUNT, PAYER_ACCOUNT, PAYMENT_AMOUNT, PAYMENT_UNITS, PAYMENT_BATCH_NUM, TIMESTAMPGMT, PAYMENT_ID, V2_HASH
-            if returns True you can charge user
+            Returns: True/False
+
+            Example:
+            STATUS_URL = https://example.com/api/callback
+            After payment, perfectmoney calls this url to notify your payment's status with post method
+            Fields are : PAYEE_ACCOUNT, PAYER_ACCOUNT, PAYMENT_AMOUNT, PAYMENT_UNITS, PAYMENT_BATCH_NUM, TIMESTAMPGMT, PAYMENT_ID, V2_HASH
         '''
         check = "%s:%s:%.2f:%s:%s:%s:%s:%s" % (
             payment_id,
@@ -415,4 +415,5 @@ class PerfectMoney(Links):
 
         if res == v2_hash:
             return True
+
         return False
