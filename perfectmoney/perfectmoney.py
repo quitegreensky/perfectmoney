@@ -1,6 +1,7 @@
 from .links import Links
 from .requests import Requests
 from .utils import csv_to_list, rates_to_dic
+import hashlib
 
 class PerfectMoney(Links):
 
@@ -387,3 +388,31 @@ class PerfectMoney(Links):
             for items in content:
                 dic[items['@name']]= items['@value']
             return dic
+        
+    def checks(payee, payer, amount, units, batch_number, secret, timestamp, payment_id, v2_hash):
+        '''
+            in paymentform you set STATUS_URL for notification payment status and you need verify payment
+            Validates SCI payment confirmation data from Perfectmoney server
+            return: True/False
+            
+            Example :
+            you set STATUS_URL = https://example.com/api/callback
+            after payment, perfectmoney call this url to notify your payment status with post method
+            fields are : PAYEE_ACCOUNT, PAYER_ACCOUNT, PAYMENT_AMOUNT, PAYMENT_UNITS, PAYMENT_BATCH_NUM, TIMESTAMPGMT, PAYMENT_ID, V2_HASH
+            if returns True you can charge user
+        '''
+        check = "%s:%s:%.2f:%s:%s:%s:%s:%s" % (
+            payment_id,
+            payee,
+            amount,
+            units,
+            batch_number,
+            payer,
+            secret,
+            timestamp
+        )
+        res = hashlib.md5(check.encode('ascii')).hexdigest().upper()
+
+        if res == v2_hash:
+            return True
+        return False
