@@ -3,11 +3,13 @@ import xmltodict
 
 class Requests:
 
-    def __init__(self, proxies = None):
+    def __init__(self, proxies = None, timeout = None):
         self._error= None
         self._proxies = proxies
+        self._timeout = timeout
 
-    def _xml_parser(self, xml):
+    @staticmethod
+    def _xml_parser(xml):
         dict= xmltodict.parse(xml)['html']['body']['input']
         return dict
 
@@ -15,7 +17,8 @@ class Requests:
     def error(self):
         return self._error
 
-    def _check_for_error(self, content):
+    @staticmethod
+    def _check_for_error(content):
         error= None
         try:
             if content['@name']=='ERROR':
@@ -26,7 +29,7 @@ class Requests:
         return error
 
     def fetch(self, link, type):
-        res= requests.get(link, verify=True, proxies=self._proxies)
+        res= requests.get(link, verify=True, proxies=self._proxies, timeout=self._timeout)
         if not res.ok:
             self._error= res.text
             return False

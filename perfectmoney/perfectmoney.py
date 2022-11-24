@@ -5,9 +5,9 @@ import hashlib
 
 class PerfectMoney(Links):
 
-    def __init__(self, account_id, password, proxies=None):
+    def __init__(self, account_id, password, proxies=None, timeout=None):
         super().__init__(account_id, password)
-        self.req= Requests(proxies=proxies)
+        self.req= Requests(proxies=proxies, timeout=timeout)
         self._error= None
         self._address_prefix= {
             'U': 'USD',
